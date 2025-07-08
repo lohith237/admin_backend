@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Store = require('../../models/Store');
 const User = require('../../models/userModel');
 const { paginateAndSearch } = require('../../utils/pagination');
