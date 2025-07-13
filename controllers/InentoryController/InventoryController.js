@@ -77,8 +77,23 @@ const getStoreByInventory = async (req, res) => {
     res.status(500).json({ message: 'Error fetching store inventory', error: err.message });
   }
 };
+const upDateStoreWiseProduct=async(req,res)=>{
+   const {price,offer_price,qty,isActive}=req.body
+   const updatedFields={
+    price,offer_price,qty,isActive
+   }
+   const updatedInventory= await Inventory.findByIdAndUpdate(req.params.id,{$set:updatedFields},{new:true})
+  if (!updatedInventory) {
+      return res.status(400).json({ message: "Inventory not found" });
+    }
 
+    return res.status(200).json({
+      message: 'Store inventory updated successfully',
+      store: updatedInventory
+    });
+}
 module.exports = {
   syncInventoryToStore,
-  getStoreByInventory
+  getStoreByInventory,
+  upDateStoreWiseProduct
 };
