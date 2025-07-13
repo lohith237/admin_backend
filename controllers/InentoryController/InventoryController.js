@@ -59,7 +59,7 @@ const getStoreByInventory = async (req, res) => {
       page,
       pageSize,
       search,
-      searchFields: [],
+      searchFields: ["product.name","product.description"],
       filter,
       sort: { createdAt: -1 },
       baseUrl,
