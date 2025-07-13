@@ -92,8 +92,28 @@ const upDateStoreWiseProduct=async(req,res)=>{
       store: updatedInventory
     });
 }
+const DeleteStoreWiseProduct = async (req, res) => {
+  try {
+    const deletedInventory = await Inventory.findByIdAndDelete(req.params.id);
+
+    if (!deletedInventory) {
+      return res.status(404).json({ message: "Inventory not found" });
+    }
+
+    return res.status(200).json({
+      message: "Store inventory deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error while deleting inventory",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   syncInventoryToStore,
   getStoreByInventory,
-  upDateStoreWiseProduct
+  upDateStoreWiseProduct,
+  DeleteStoreWiseProduct
 };
