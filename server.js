@@ -3,12 +3,29 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
+const http = require('http');
+const { setupWebSocket } = require('./socket/index');
 const connectDB = require('./config/db');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-const { authRoutes, userRoutes, CategoryRoutes,subCategoryRoutes,BannerRoutes,BrandsRoutes,ProductsRoutes,DisplayCategoryRoutes,StoreRoutes,InventoryRoutes } = require('./routes');
+const {
+  authRoutes,
+  userRoutes,
+  CategoryRoutes,
+  subCategoryRoutes,
+  BannerRoutes,
+  BrandsRoutes,
+  ProductsRoutes,
+  DisplayCategoryRoutes,
+  StoreRoutes,
+  InventoryRoutes
+} = require('./routes');
 
 const app = express();
+const server = http.createServer(app);
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(cors());
 app.use(express.json());
@@ -21,15 +38,15 @@ const swaggerOptions = {
     info: {
       title: 'Admin-project',
       version: '1.0.0',
-      description: 'API documentation for Admin-project backend',
+      description: 'API documentation for Admin-project backend'
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 3000}`,
-      },
-    ],
+        url: `http://localhost:${process.env.PORT || 3000}`
+      }
+    ]
   },
-  apis: ['./routes/*.js'],
+  apis: ['./routes/*.js']
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -40,18 +57,32 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 app.use('/uploads', express.static(uploadsDir));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', CategoryRoutes);
-app.use('/api/sub-category',subCategoryRoutes);
-app.use('/api/banners',BannerRoutes);
-app.use('/api/brands',BrandsRoutes);
-app.use('/api/products',ProductsRoutes);
+app.use('/api/sub-category', subCategoryRoutes);
+app.use('/api/banners', BannerRoutes);
+app.use('/api/brands', BrandsRoutes);
+app.use('/api/products', ProductsRoutes);
 app.use('/api/display-categories', DisplayCategoryRoutes);
 app.use('/api/store', StoreRoutes);
 app.use('/api/inventroy', InventoryRoutes);
+
 app.get('/', (req, res) => {
   res.send('Welcome to Admin Backend!');
+});
+
+app.get('/product/:id', async (req, res) => {
+  const productId = req.params.id;
+  const product = {
+    id: productId,
+    name: 'iPhone 15 Pro',
+    description: 'High quality Apple phone with amazing performance.',
+    imageUrl: `https://admin-backend-1-83wi.onrender.com/uploads/1749729808007-image_153.webp`,
+    url: `https://yourdomain.com/product/${productId}`
+  };
+  res.render('product', { product });
 });
 
 app.use((err, req, res, next) => {
@@ -60,7 +91,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+setupWebSocket(server);
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
   console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
 });
